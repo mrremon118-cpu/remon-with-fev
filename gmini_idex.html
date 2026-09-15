@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/x-icon" href="favicon.png">
+<title>Remon - রিমন</title>
+
+<style>
+/* --- লোকাল বাংলা ফন্ট লোডার --- */
+@font-face {
+    font-family: 'BL Bongolipi';
+    src: url('BL Bongolipi press Unicode regular.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+}
+@font-face {
+    font-family: 'BenSen';
+    src: url('BenSen Handwriting Unicode.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+}
+@font-face {
+    font-family: 'BL Abdul';
+    src: url('BL Abdul Bangla Unicode.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+}
+@font-face {
+    font-family: 'BL Shahid';
+    src: url('BL Shahid Tahmid Tamim Unicode.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    margin: 0; padding: 20px 10px; background: #000;
+    font-family: 'BL Bongolipi', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+.wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 400px; }
+
+.card-scaler { zoom: 0.85; margin-bottom: 10px; }
+@media screen and (max-height: 700px) { .card-scaler { zoom: 0.75; } }
+
+.book-page-bg {
+    background-image: 
+        linear-gradient(135deg, #EADFC9 0%, #EEE3CD 25%, #F4E6CB 50%, #F7EDD4 75%, #F7EFDA 100%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E") !important;
+    background-blend-mode: multiply;
+}
+
+.card {
+    width: 360px; height: 480px; 
+    position: relative; display: flex; flex-direction: column;
+    overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+    padding: 25px;
+    font-family: 'BL Bongolipi', sans-serif;
+}
+
+#img-box { 
+    width: 100%; height: 180px; 
+    background: #1a1a1a; position: relative; 
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+#preview-img { 
+    position: absolute; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; 
+    object-position: center;
+    transform: translate(0px, 0px) scale(1);
+    transform-origin: center center; 
+    display: none; 
+}
+
+.watermark-side {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #44413c; 
+    font-weight: bold;
+    letter-spacing: 2px;
+    opacity: 0.9;
+}
+
+.card-body {
+    margin-top: 15px;
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    overflow: hidden; 
+    position: relative;
+    padding-left: 15px;
+}
+
+#text { 
+    font-size: 16px; color: #000000; line-height: 1.6; text-align: left;
+    word-break: break-word; white-space: pre-wrap; width: 100%;
+    margin: 0; padding: 0;
+}
+
+.credit-zone {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 0px;
+    flex-shrink: 0;
+}
+.credit { font-size: 12px; color: #e60000; font-weight: bold; }
+.credit-date { font-size: 10px; color: #55524d; font-weight: 600; margin-top: 4px; }
+.credit-source { font-size: 9px; color: #66635d; font-weight: 600; margin-top: 2px; }
+
+.panel {
+    width: 100%; background: #0a0a0a; padding: 20px;
+    border-radius: 16px; border: 1px solid #1a1a1a; margin-top: 10px; color: #fff;
+}
+
+.label-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 6px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+.val-badge { background: #ffffff; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+.slider-group { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
+.mini-btn { background: #161616; color: #fff; border: 1px solid #222; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 18px; }
+.slider-group input { flex-grow: 1; accent-color: #fff; }
+
+.btn-row { display: flex; gap: 6px; margin-bottom: 15px; }
+.btn-row button { flex: 1; padding: 11px; border-radius: 8px; background: #121212; color: #aaa; border: 1px solid #222; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.active-btn { background: #ffffff !important; color: #000 !important; border: 1px solid #ffffff !important; }
+
+.pos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 90px; }
+.pos-btn { background: #121212; color: #fff; border: 1px solid #222; padding: 6px; border-radius: 6px; font-size: 10px; cursor: pointer; }
+
+input[type="text"], textarea, select { 
+    width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid #222; 
+    background: #121212; color: #fff; font-size: 13px; outline: none; font-family: inherit;
+}
+
+select option { background: #0a0a0a; color: #fff; font-family: sans-serif; }
+.file-up { margin-bottom: 15px; border: 1px dashed #333; padding: 12px; border-radius: 8px; width: 100%; color: #666; font-size: 12px; background: #050505; }
+
+.save-btn { width: 100%; padding: 14px; border-radius: 8px; background: #ffffff; border: none; color: #000; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s; margin-bottom: 8px;}
+.video-btn { width: 100%; padding: 14px; border-radius: 8px; background: #e60000; border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s; }
+.save-btn:hover, .video-btn:hover { opacity: 0.9; }
+.reset-btn { width: 100%; padding: 10px; border-radius: 8px; background: transparent; border: 1px solid #222; color: #555; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+
+#toast { display: none; position: fixed; top: 20px; background: #fff; color: #000; padding: 10px 24px; border-radius: 30px; font-size: 12px; z-index: 9999; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+</style>
+</head>
+<body>
+
+<div id="toast">প্রসেসিং হচ্ছে...</div>
+
+<div class="wrapper">
+    <div class="card-scaler">
+        <div class="card book-page-bg" id="card">
+            <div class="watermark-side" id="wm-text"></div>
+            <div id="img-box"><img id="preview-img" alt=""></div>
+            <div class="card-body" id="body-container">
+                <div id="text">আপনার কবিতা বা স্ট্যাটাস এখানে টাইপ করুন...</div>
+            </div>
+            <div class="credit-zone">
+                <div class="credit" id="credit-view">- রিমন</div>
+                <div class="credit-date" id="date-view"></div>
+                <div class="credit-source" id="source-view">লেখা-সংগৃহীত</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="label-row"><span>Upload Photo:</span></div>
+        <input type="file" id="imgInput" accept="image/*" class="file-up">
+
+        <div class="btn-row">
+            <button onclick="setMode('normal')" id="m-normal" class="active-btn">Original</button>
+            <button onclick="setMode('bw')" id="m-bw">B&W</button>
+            <button onclick="setMode('aesthetic')" id="m-aesthetic">Aesthetic Mood</button>
+        </div>
+
+        <div class="label-row"><span>Image Position & Zoom:</span></div>
+        <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+            <div class="slider-group" style="flex: 1; margin-bottom: 0;">
+                <button class="mini-btn" onclick="adjustZoom(-0.05)">−</button>
+                <input type="range" id="zoomRange" min="1" max="4" step="0.05" value="1">
+                <button class="mini-btn" onclick="adjustZoom(0.05)">+</button>
+            </div>
+            <div class="pos-grid">
+                <span></span><button class="pos-btn" onclick="moveImg('up')">▲</button><span></span>
+                <button class="pos-btn" onclick="moveImg('left')">◀</button>
+                <button class="pos-btn" onclick="moveImg('down')">▼</button>
+                <button class="pos-btn" onclick="moveImg('right')">▶</button>
+            </div>
+        </div>
+
+        <div class="label-row"><span>Image Brightness:</span> <span class="val-badge" id="brightVal">100%</span></div>
+        <div class="slider-group">
+            <button class="mini-btn" onclick="adjustValue('brightRange', -5)">−</button>
+            <input type="range" id="brightRange" min="20" max="200" step="5" value="100">
+            <button class="mini-btn" onclick="adjustValue('brightRange', 5)">+</button>
+        </div>
+
+        <div class="label-row"><span>Select Bengali Font:</span></div>
+        <select id="fontSelector" onchange="changeFont(this.value)">
+            <option value="BL Bongolipi">BL Bongolipi (Default)</option>
+            <option value="BenSen">BenSen Handwriting</option>
+            <option value="BL Abdul">BL Abdul Bangla</option>
+            <option value="BL Shahid">BL Shahid Tahmid</option>
+        </select>
+
+        <div class="label-row"><span>Text Alignment:</span></div>
+        <div class="btn-row">
+            <button onclick="setAlign('left')" id="a-left" class="active-btn">Left</button>
+            <button onclick="setAlign('center')" id="a-center">Center</button>
+            <button onclick="setAlign('right')" id="a-right">Right</button>
+        </div>
+
+        <div class="label-row"><span>Font Size:</span> <span class="val-badge" id="sizeVal">16</span></div>
+        <div class="slider-group">
+            <button class="mini-btn" onclick="adjustValue('textSizeRange', -1)">−</button>
+            <input type="range" id="textSizeRange" min="10" max="40" step="1" value="16">
+            <button class="mini-btn" onclick="adjustValue('textSizeRange', 1)">+</button>
+        </div>
+
+        <input type="text" id="watermarkInput" placeholder="ওয়াটারমার্ক টেক্সট..." value="রিমন-Remon">
+        <input type="text" id="creditInput" placeholder="লেখকের নাম..." value="- রিমন">
+        <textarea id="textInput" rows="4" placeholder="আপনার কবিতা বা স্ট্যাটাস লিখুন..."></textarea>
+        
+        <button onclick="downloadCanvasHD()" class="save-btn">SAVE ULTRA HD IMAGE</button>
+        <button onclick="generateVideoCard()" class="video-btn">🎥 EXPORT ANIMATED VIDEO (15S)</button>
+        <button onclick="resetDefaults()" class="reset-btn">RESET DEFAULTS</button>
+    </div>
+</div>
+
+<script>
+let zoom = 1, posX = 0, posY = 0, mode = 'normal', brightness = 100;
+let currentAlign = 'left';
+let selectedFontFamily = "BL Bongolipi"; 
+
+let globalImageObj = new Image();
+let isImageLoaded = false;
+
+const previewImg = document.getElementById('preview-img');
+const textDisplay = document.getElementById('text');
+const bodyContainer = document.getElementById('body-container');
+
+const banglaNumbers = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+const banglaMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+const banglaDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+
+function toBanglaNumber(str) {
+    return String(str).replace(/[0-9]/g, w => banglaNumbers[w]);
+}
+
+function getBanglaDateTime() {
+    const now = new Date();
+    let day = toBanglaNumber(now.getDate());
+    let month = banglaMonths[now.getMonth()];
+    let year = toBanglaNumber(now.getFullYear());
+    let weekday = banglaDays[now.getDay()];
+    
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
+    
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    
+    let timeStr = toBanglaNumber(hours) + ':' + toBanglaNumber(minutes) + ':' + toBanglaNumber(seconds) + ' ' + ampm;
+    return `${day} ${month} ${year} · ${weekday} · ${timeStr}`;
+}
+
+function startLiveClock() {
+    const dateView = document.getElementById('date-view');
+    if(dateView) dateView.innerText = getBanglaDateTime();
+    setInterval(() => {
+        if(dateView) dateView.innerText = getBanglaDateTime();
+    }, 1000);
+}
+
+function updateWatermark(val) {
+    let container = document.getElementById('wm-text');
+    container.innerHTML = '';
+    let cleanWm = val.replace(/\s/g, '');
+    for(let char of cleanWm) {
+        let span = document.createElement('span');
+        span.innerText = char;
+        container.appendChild(span);
+    }
+}
+
+function changeFont(fontName) {
+    selectedFontFamily = fontName;
+    document.getElementById('card').style.fontFamily = fontName;
+    autoFitText();
+}
+
+function autoFitText() {
+    let fontSize = parseInt(document.getElementById('textSizeRange').value);
+    textDisplay.style.fontSize = fontSize + "px";
+    const maxHeight = bodyContainer.clientHeight - 10;
+    while (textDisplay.scrollHeight > maxHeight && fontSize > 8) {
+        fontSize -= 0.5;
+        textDisplay.style.fontSize = fontSize + "px";
+    }
+}
+
+function adjustValue(id, delta) {
+    const el = document.getElementById(id);
+    let newVal = parseFloat(el.value) + delta;
+    if(newVal >= parseFloat(el.min) && newVal <= parseFloat(el.max)) {
+        el.value = newVal;
+        el.dispatchEvent(new Event('input'));
+    }
+}
+
+function adjustZoom(delta) {
+    const el = document.getElementById('zoomRange');
+    let newVal = parseFloat(el.value) + delta;
+    if(newVal >= 1 && newVal <= 4) {
+        el.value = newVal;
+        zoom = newVal;
+        updateImageStyle();
+    }
+}
+
+document.getElementById('textSizeRange').oninput = function() {
+    document.getElementById('sizeVal').innerText = this.value;
+    autoFitText();
+};
+
+document.getElementById('brightRange').oninput = function() {
+    brightness = this.value;
+    document.getElementById('brightVal').innerText = this.value + "%";
+    updateImageStyle();
+};
+
+function moveImg(dir) {
+    if(dir === 'up') posY -= 8; if(dir === 'down') posY += 8;
+    if(dir === 'left') posX -= 8; if(dir === 'right') posX += 8;
+    updateImageStyle();
+}
+
+document.getElementById('zoomRange').oninput = function() { 
+    zoom = this.value; 
+    updateImageStyle(); 
+};
+
+function updateImageStyle() { 
+    let filterStr = '';
+    if (mode === 'bw') {
+        filterStr = 'grayscale(100%) contrast(1.1)';
+    } else if (mode === 'aesthetic') {
+        filterStr = 'grayscale(25%) sepia(40%) contrast(1.15) saturate(70%)';
+    }
+    
+    filterStr += ` brightness(${brightness}%)`;
+    previewImg.style.filter = filterStr;
+    previewImg.style.transform = `translate(${posX}px, ${posY}px) scale(${zoom})`; 
+}
+
+function setAlign(al) {
+    currentAlign = al;
+    textDisplay.style.textAlign = al;
+    document.querySelectorAll('[id^="a-"]').forEach(b => b.classList.remove('active-btn'));
+    document.getElementById('a-' + al).classList.add('active-btn');
+}
+
+function setMode(m) {
+    mode = m;
+    document.querySelectorAll('[id^="m-"]').forEach(b => b.classList.remove('active-btn'));
+    document.getElementById('m-' + m).classList.add('active-btn');
+    updateImageStyle();
+}
+
+document.getElementById('watermarkInput').oninput = e => { updateWatermark(e.target.value || "রিমন-Remon"); };
+document.getElementById('creditInput').oninput = e => { document.getElementById('credit-view').innerText = e.target.value || ""; };
+
+document.getElementById('textInput').oninput = e => {
+    textDisplay.innerText = e.target.value || "আপনার কবিতা বা স্ট্যাটাস এখানে টাইপ করুন...";
+    autoFitText();
+};
+
+document.getElementById('imgInput').onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ev => { 
+        const imgData = ev.target.result;
+        previewImg.src = imgData; 
+        previewImg.style.display = 'block'; 
+        
+        globalImageObj = new Image();
+        globalImageObj.onload = function() {
+            isImageLoaded = true;
+            posX = 0; posY = 0; zoom = 1; brightness = 100;
+            document.getElementById('zoomRange').value = 1;
+            document.getElementById('brightRange').value = 100;
+            document.getElementById('brightVal').innerText = "100%";
+            updateImageStyle();
+        };
+        globalImageObj.src = imgData;
+    };
+    reader.readAsDataURL(file);
+};
+
+function resetDefaults() {
+    zoom = 1; posX = 0; posY = 0; brightness = 100;
+    isImageLoaded = false;
+    document.getElementById('zoomRange').value = 1;
+    document.getElementById('brightRange').value = 100;
+    document.getElementById('brightVal').innerText = "100%";
+    document.getElementById('imgInput').value = "";
+    previewImg.src = "";
+    previewImg.style.display = 'none';
+    updateImageStyle();
+
+    document.getElementById('watermarkInput').value = "রিমন-Remon";
+    updateWatermark("রিমন-Remon");
+    
+    document.getElementById('creditInput').value = "- রিমন";
+    document.getElementById('credit-view').innerText = "- রিমন";
+    
+    document.getElementById('textInput').value = "";
+    textDisplay.innerText = "আপনার কবিতা বা স্ট্যাটাস এখানে টাইপ করুন...";
+
+    document.getElementById('textSizeRange').value = 16;
+    document.getElementById('sizeVal').innerText = "16";
+
+    document.getElementById('fontSelector').value = "BL Bongolipi";
+    changeFont("BL Bongolipi");
+
+    setMode('normal');
+    setAlign('left');   
+    autoFitText();
+}
+
+function wrapText(ctx, text, maxWidth) {
+    let lines = [];
+    let paragraphs = text.split('\n');
+    for (let p = 0; p < paragraphs.length; p++) {
+        let words = paragraphs[p].split(' ');
+        let currentLine = '';
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n] + ' ';
+            let metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && n > 0) {
+                lines.push(currentLine.trim());
+                currentLine = words[n] + ' ';
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine.trim());
+    }
+    return lines;
+}
+
+function renderFrame(ctx, cWidth, cHeight, scale, currentText) {
+    let gradient = ctx.createLinearGradient(0, 0, cWidth, cHeight);
+    gradient.addColorStop(0, '#EADFC9');
+    gradient.addColorStop(0.25, '#EEE3CD');
+    gradient.addColorStop(0.5, '#F4E6CB');
+    gradient.addColorStop(0.75, '#F7EDD4');
+    gradient.addColorStop(1, '#F7EFDA');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, cWidth, cHeight);
+
+    for (let x = 0; x < cWidth; x += 4) {
+        for (let y = 0; y < cHeight; y += 4) {
+            if (Math.random() > 0.8) {
+                ctx.fillStyle = `rgba(0,0,0,0.03)`;
+                ctx.fillRect(x, y, 4, 4);
+            }
+        }
+    }
+
+    const paddingFrame = 25 * scale;
+    const imgBoxW = cWidth - (paddingFrame * 2);
+    const imgBoxH = 180 * scale; 
+    const imgBoxX = paddingFrame;
+    const imgBoxY = paddingFrame;
+
+    if (isImageLoaded && globalImageObj.complete) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(imgBoxX, imgBoxY, imgBoxW, imgBoxH);
+        ctx.clip();
+
+        let imgW = globalImageObj.naturalWidth || globalImageObj.width;
+        let imgH = globalImageObj.naturalHeight || globalImageObj.height;
+
+        let imgRatio = imgW / imgH;
+        let boxRatio = imgBoxW / imgBoxH;
+        
+        let renderW, renderH;
+        if (imgRatio > boxRatio) {
+            renderH = imgBoxH;
+            renderW = imgBoxH * imgRatio;
+        } else {
+            renderW = imgBoxW;
+            renderH = imgBoxW / imgRatio;
+        }
+
+        let finalW = renderW * zoom;
+        let finalH = renderH * zoom;
+
+        let dx = imgBoxX + (imgBoxW - finalW) / 2 + (posX * scale);
+        let dy = imgBoxY + (imgBoxH - finalH) / 2 + (posY * scale);
+
+        let canvasFilter = `brightness(${brightness}%)`;
+        if (mode === 'bw') {
+            canvasFilter = 'grayscale(100%) contrast(110%) ' + canvasFilter;
+        } else if (mode === 'aesthetic') {
+            canvasFilter = 'grayscale(25%) sepia(40%) contrast(115%) saturate(70%) ' + canvasFilter;
+        }
+        ctx.filter = canvasFilter;
+
+        ctx.drawImage(globalImageObj, dx, dy, finalW, finalH);
+        
+        ctx.filter = 'none'; 
+        ctx.restore();
+    } else {
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fillRect(imgBoxX, imgBoxY, imgBoxW, imgBoxH);
+    }
+
+    let cleanFont = selectedFontFamily.trim();
+
+    // Watermark
+    ctx.fillStyle = "#44413c";
+    ctx.font = `bold ${11 * scale}px ${cleanFont}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    let wmVal = document.getElementById('watermarkInput').value || "রিমন-Remon";
+    let cleanWm = wmVal.replace(/\s/g, '');
+    let wmStartX = 14 * scale;
+    let wmStartY = cHeight / 2 - ((cleanWm.length * 15 * scale) / 2);
+    for(let i=0; i<cleanWm.length; i++) {
+        ctx.fillText(cleanWm[i], wmStartX, wmStartY + (i * 16 * scale));
+    }
+
+    // Text Container
+    const bodyY = imgBoxY + imgBoxH + 15 * scale; 
+    const creditZoneH = 50 * scale; 
+    const bodyH = cHeight - bodyY - creditZoneH - paddingFrame; 
+    const textPaddingLeft = 15 * scale;
+    const maxTextW = cWidth - paddingFrame - textPaddingLeft - 10 * scale;
+
+    ctx.fillStyle = "#000000";
+    let currentFontSize = parseFloat(textDisplay.style.fontSize) * scale;
+    ctx.font = `${currentFontSize}px ${cleanFont}`;
+    ctx.textBaseline = "top";
+
+    let lines = wrapText(ctx, currentText, maxTextW);
+    let lineHeight = currentFontSize * 1.6;
+    let totalTextHeight = lines.length * lineHeight;
+    
+    let startY = bodyY + (bodyH - totalTextHeight) / 2;
+
+    lines.forEach((line, index) => {
+        let lineX = textPaddingLeft + paddingFrame;
+        if (currentAlign === 'center') {
+            ctx.textAlign = "center";
+            lineX = paddingFrame + textPaddingLeft + (maxTextW / 2);
+        } else if (currentAlign === 'right') {
+            ctx.textAlign = "right";
+            lineX = cWidth - paddingFrame;
+        } else {
+            ctx.textAlign = "left";
+        }
+        ctx.fillText(line, lineX, startY + (index * lineHeight));
+    });
+
+    // Credit Zone
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    
+    ctx.fillStyle = "#66635d";
+    ctx.font = `600 ${9 * scale}px ${cleanFont}`;
+    let sourceY = cHeight - paddingFrame;
+    ctx.fillText("লেখা-সংগৃহীত", cWidth - paddingFrame, sourceY);
+
+    ctx.fillStyle = "#55524d";
+    ctx.font = `600 ${10 * scale}px ${cleanFont}`;
+    let dateText = getBanglaDateTime(); 
+    let dateY = sourceY - (9 * scale) - (4 * scale); 
+    ctx.fillText(dateText, cWidth - paddingFrame, dateY);
+
+    ctx.fillStyle = "#e60000";
+    ctx.font = `bold ${12 * scale}px ${cleanFont}`;
+    let creditText = document.getElementById('creditInput').value || "";
+    let nameY = dateY - (10 * scale) - (4 * scale); 
+    ctx.fillText(creditText, cWidth - paddingFrame, nameY);
+}
+
+function downloadCanvasHD() {
+    const toast = document.getElementById('toast');
+    toast.innerText = "ইমেজ প্রসেসিং হচ্ছে...";
+    toast.style.display = 'block';
+
+    document.fonts.ready.then(() => {
+        setTimeout(() => {
+            const scale = 4;
+            const cWidth = 360 * scale;
+            const cHeight = 480 * scale;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = cWidth;
+            canvas.height = cHeight;
+            const ctx = canvas.getContext('2d');
+
+            renderFrame(ctx, cWidth, cHeight, scale, textDisplay.innerText);
+
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png", 1.0);
+            link.download = "Minimalist_Poetry_Card_3x4_HD.png";
+            link.click();
+            
+            toast.style.display = 'none';
+        }, 150);
+    });
+}
+
+function generateVideoCard() {
+    const toast = document.getElementById('toast');
+    toast.innerText = "ভিডিও প্রসেস হচ্ছে... (১৫ সেকেন্ড)";
+    toast.style.display = 'block';
+
+    document.fonts.ready.then(() => {
+        const scale = 2; 
+        const cWidth = 360 * scale;
+        const cHeight = 480 * scale;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cWidth;
+        canvas.height = cHeight;
+        const ctx = canvas.getContext('2d');
+
+        const stream = canvas.captureStream(30); 
+        let mimeType = 'video/webm;codecs=vp9';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'video/webm';
+        }
+        
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Minimalist_Poetry_Video_15s.webm';
+            a.click();
+            toast.style.display = 'none';
+        };
+
+        mediaRecorder.start();
+
+        let fullText = textDisplay.innerText;
+        /* --- ১৫ সেকেন্ডের জন্য ৪৫০টি ফ্রেম (৩০ fps × ১৫s = ৪৫০) --- */
+        let totalFrames = 450; 
+        let frame = 0;
+
+        function animateFrame() {
+            if (frame >= totalFrames) {
+                mediaRecorder.stop();
+                return;
+            }
+
+            renderFrame(ctx, cWidth, cHeight, scale, fullText);
+
+            frame++;
+            setTimeout(animateFrame, 1000 / 30);
+        }
+
+        animateFrame();
+    });
+}
+
+window.onload = () => { 
+    startLiveClock();
+    updateWatermark("রিমন-Remon");
+    autoFitText(); 
+};
+</script>
+
+</body>
+</html>
