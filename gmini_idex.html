@@ -649,7 +649,9 @@ function generateVideoCard() {
         canvas.height = cHeight;
         const ctx = canvas.getContext('2d');
 
-        const stream = canvas.captureStream(30); 
+        const fps = 30; // ৩০ ফ্রেম প্রতি সেকেন্ড
+        const stream = canvas.captureStream(fps); 
+        
         let mimeType = 'video/webm;codecs=vp9';
         if (!MediaRecorder.isTypeSupported(mimeType)) {
             mimeType = 'video/webm';
@@ -669,26 +671,24 @@ function generateVideoCard() {
             toast.style.display = 'none';
         };
 
+        let fullText = textDisplay.innerText;
+
+        // রেকর্ডিং শুরু
         mediaRecorder.start();
 
-        let fullText = textDisplay.innerText;
-        /* --- ১৫ সেকেন্ডের জন্য ৪৫০টি ফ্রেম (৩০ fps × ১৫s = ৪৫০) --- */
-        let totalFrames = 450; 
-        let frame = 0;
-
-        function animateFrame() {
-            if (frame >= totalFrames) {
-                mediaRecorder.stop();
-                return;
-            }
-
+        // ৩০ FPS এ ফ্রেমে ড্র করার ব্যবধান
+        const frameInterval = 1000 / fps;
+        const drawInterval = setInterval(() => {
             renderFrame(ctx, cWidth, cHeight, scale, fullText);
+        }, frameInterval);
 
-            frame++;
-            setTimeout(animateFrame, 1000 / 30);
-        }
-
-        animateFrame();
+        // ঠিক ১৫,০০০ms (১৫ সেকেন্ড) পর রেকর্ডিং সম্পূর্ণ বন্ধ হবে
+        setTimeout(() => {
+            clearInterval(drawInterval);
+            if (mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }, 15000); 
     });
 }
 
